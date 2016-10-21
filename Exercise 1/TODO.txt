@@ -1,0 +1,3 @@
+Namen im Sourcecode
+PDF mit Unterschied zwischen DETACHED und JOINABLE
+Screenshot mit den beiden Thread verläufen und Erklärung dazu 
