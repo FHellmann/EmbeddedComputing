@@ -7,8 +7,10 @@ int main( void )
 	frequency.tv_sec = 0;
 	while(1) {
 		// Get the difference of the start and end time from the last iteration
-		long diff = requestEnd.tv_nsec - requestStart.tv_nsec - 1000;
-		// Sample: diff = end - start - 1000 = 1050 - 10 - 1000 = 40
+		if(requestEnd.tv_nsec > 0) {
+			long diff = requestEnd.tv_nsec - requestStart.tv_nsec - 1000;
+			// Sample: diff = end - start - 1000 = 1050 - 10 - 1000 = 40
+		}
 		
 		// Get time when starting loop
 		clock_gettime(CLOCK_REALTIME, &requestStart);
