@@ -1,29 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <pthread.h>
+#include <time.h>
+
+#define TIMESPEC_ADD(A,B) /* A += B */ \
+do {                                   \
+    (A).tv_sec += (B).tv_sec;          \
+    (A).tv_nsec += (B).tv_nsec;        \
+    if ( (A).tv_nsec >= 1000000000 ) { \
+        (A).tv_sec++;                  \
+        (A).tv_nsec -= 1000000000;     \
+    }                                  \
+} while (0)
 
 void changeSystemTick(unsigned int microsecs) {
-	struct timespec frequency, requestStart, requestEnd;
-	frequency.tv_sec = 0;
+	int iter;
+	struct timespec next_act, period;
 	
-	while(1) {
-		// Get the difference of the start and end time from the last iteration
-		long diff = requestEnd.tv_nsec - requestStart.tv_nsec - microsecs;
-		// Sample: diff = end - start - 1000 = 1050 - 10 - 1000 = 40
-		
-		// Get time when starting loop
-		clock_gettime(CLOCK_REALTIME, &requestStart);
-		printf("Time taken (nanoseconds): %ld\n", requestStart);
-		// Sample: start = 10
-		
-		frequency.tv_nsec = microsecs - diff;
-		clock_nanosleep(CLOCK_REALTIME, 0, &frequency, NULL);
-		
-		// Get time when loop ends
-		clock_gettime(CLOCK_REALTIME, &requestEnd);
-		printf("Time taken (nanoseconds): %ld\n", requestEnd);
-		// Sample: end = 1050
+	clock_gettime ( CLOCK_MONOTONIC, &next_act );
+	period.tv_sec = 0;
+	period.tv_nsec = microsecs;
+	
+	for ( iter = 0; iter < 1000; iter++ ) {
+		TIMESPEC_ADD(next_act, period);
+		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next_act, NULL);
+		printf("Time (nanoseconds): %ld\n", next_act);
 	}
 }
 
