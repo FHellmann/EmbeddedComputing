@@ -7,7 +7,7 @@ void* function( void )
 	// Get the thread id of the current execution thread
 	pthread_t *id = pthread_self();
 	// Let the current thread sleep for a random time span
-	sleep( rand() % 50);
+	nsleep( rand() % 50);
 	// Print out the current executing thread id
 	printf( "This is thread %d\n", id );
 	// Return the thread id when exiting this thread
