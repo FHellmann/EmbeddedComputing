@@ -4,22 +4,16 @@
 
 int main( void )
 {
-	struct timespec frequency, requestStart, requestEnd;
-	frequency.tv_sec = 0;
-	long diff = 0;
-	long sleepTime = 1000000;
+	struct timespec timeout;
+	
+	const int NSEC_IN_SEC = 1000000;
+	clock_gettime(CLOCK_MONOTONIC, &timeout);
 	while(1) {
-		// Get time when starting loop
-		clock_gettime(CLOCK_MONOTONIC, &requestStart);
-		
-		frequency.tv_nsec = sleepTime - diff;
-		clock_nanosleep(CLOCK_MONOTONIC, 0, &frequency, NULL);
-		
-		// Get time when loop ends
-		clock_gettime(CLOCK_MONOTONIC, &requestEnd);
-		
-		// Get the difference of the start and end time from the last iteration
-		diff = requestEnd.tv_nsec - requestStart.tv_nsec - sleepTime;
+		if(timeout.tv_nsec >= NSEC_IN_SEC) {
+			timeout.tv_nsec -= NSEC_IN_SEC;
+			timeout.tv_sec++;
+		}
+		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeout, NULL);
 	}
 
 	return EXIT_SUCCESS;
