@@ -28,9 +28,7 @@ void changeSystemTick(unsigned int microsecs) {
 
 int main( int argc, char *argv[] )
 {
-	int sleepTime = strtol(argv[0], NULL, 10);
-	
-	changeSystemTick(sleepTime);
+	changeSystemTick(strtol(argv[0], NULL, 10));
 
 	return EXIT_SUCCESS;
 }
