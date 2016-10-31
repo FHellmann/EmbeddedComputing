@@ -14,6 +14,8 @@ do {                                   \
 
 int main( void )
 {
+	sleep(2); // Wait for Log-Tracer
+	
 	const int INTERVAL = 1000000;
 	int iter;
 	struct timespec next_act, period;

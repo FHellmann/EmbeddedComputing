@@ -23,13 +23,17 @@ void changeSystemTick(unsigned int microsecs) {
 	for ( iter = 0; iter < 1000; iter++ ) {
 		TIMESPEC_ADD(next_act, period);
 		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next_act, NULL);
-		printf("Time (nanoseconds): %ld\n", next_act);
+		printf("Time: %ld s, %ld ns\n", next_act.tv_sec, next_act.tv_nsec);
 	}
 }
 
 int main( int argc, char *argv[] )
 {
-	changeSystemTick(strtol(argv[0], NULL, 10));
+	sleep(2); // Wait for Log-Tracer
+	
+	int num;
+	sscanf(argv[0], "%d", &num)
+	changeSystemTick(num);
 
 	return EXIT_SUCCESS;
 }
