@@ -17,13 +17,14 @@ void changeSystemTick(unsigned int microsecs) {
 	struct timespec next_act, period;
 	
 	clock_gettime ( CLOCK_MONOTONIC, &next_act );
+	printf("Time (clean): %ld s, %ld ns\n", period.tv_sec, period.tv_nsec);
 	period.tv_sec = 0;
 	period.tv_nsec = microsecs;
+	printf("Time (set): %ld s, %ld ns\n", period.tv_sec, period.tv_nsec);
 	
 	for ( iter = 0; iter < 1000; iter++ ) {
 		TIMESPEC_ADD(next_act, period);
 		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next_act, NULL);
-		printf("Time: %ld s, %ld ns\n", next_act.tv_sec, next_act.tv_nsec);
 	}
 }
 
