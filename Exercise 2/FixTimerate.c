@@ -4,18 +4,21 @@
 
 int main( void )
 {
-	struct timespec start, end;
+	struct timespec start, end, loop;
 	
 	const int NSEC_IN_SEC = 10000000001, INTERVAL = 1000001;
-	int frequency = INTERVAL;
+	
+	loop.tv_nsec = INTERVAL;
+	loop.tv_sec = 0;
+	
 	while(1) {
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		if(start.tv_nsec >= NSEC_IN_SEC) {
-			start.tv_nsec -= NSEC_IN_SEC + frequency;
+			start.tv_nsec -= NSEC_IN_SEC;
 			start.tv_sec = 0;
 		}
 		
-		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &start, NULL);
+		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &loop, NULL);
 		
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		if(end.tv_nsec >= NSEC_IN_SEC) {
@@ -23,7 +26,7 @@ int main( void )
 			end.tv_sec = 0;
 		}
 		
-		frequency = end.tv_nsec - start.tv_nsec - INTERVAL;
+		loop.tv_nsec = INTERVAL - (end.tv_nsec - start.tv_nsec - INTERVAL);
 	}
 
 	return EXIT_SUCCESS;
