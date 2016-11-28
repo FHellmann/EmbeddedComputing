@@ -19,7 +19,7 @@ void changeSystemTick(unsigned int microsecs) {
 	clock_gettime ( CLOCK_MONOTONIC, &next_act );
 	printf("Time (clean): %ld s, %ld ns\n", period.tv_sec, period.tv_nsec);
 	period.tv_sec = 0;
-	period.tv_nsec = microsecs;
+	period.tv_nsec = microsecs * 1000;
 	printf("Time (set): %ld s, %ld ns\n", period.tv_sec, period.tv_nsec);
 	
 	for ( iter = 0; iter < 1000; iter++ ) {
@@ -33,7 +33,7 @@ int main( int argc, char *argv[] )
 	sleep(2); // Wait for Log-Tracer
 	
 	int num;
-	sscanf(argv[0], "%d", &num)
+	sscanf(argv[1], "%d", &num)
 	changeSystemTick(num);
 
 	return EXIT_SUCCESS;
