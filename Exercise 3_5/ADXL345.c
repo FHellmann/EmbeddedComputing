@@ -41,3 +41,12 @@ void loop()
 
   delay(200);
 }
+
+int main(int argc, char *argv[]) {
+	sleep(2); // Wait for Log-Tracer
+	
+	setup();
+	loop();
+
+	return EXIT_SUCCESS;
+}
