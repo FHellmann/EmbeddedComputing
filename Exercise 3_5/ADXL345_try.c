@@ -14,7 +14,7 @@ void main()
 {
 	// Create I2C bus
 	int file;
-	char *bus = "/dev/i2c-1";
+	char *bus = "/dev/i2c-2";
 	if ((file = open(bus, O_RDWR)) < 0) 
 	{
 		printf("Failed to open the bus. \n");
@@ -40,41 +40,44 @@ void main()
 	config[1] = 0x08;
 	write(file, config, 2);
 	sleep(1);
-
-	// Read 6 bytes of data from register(0x32)
-	// xAccl lsb, xAccl msb, yAccl lsb, yAccl msb, zAccl lsb, zAccl msb
-	char reg[1] = {0x32};
-	write(file, reg, 1);
-	char data[6] ={0};
-	if(read(file, data, 6) != 6)
-	{
-		printf("Erorr : Input/output Erorr \n");
-		exit(1);
-	}
-	else
-	{
-		// Convert the data to 10-bits
-		int xAccl = ((data[1] & 0x03) * 256 + (data[0] & 0xFF));
-		if(xAccl > 511)
+	while(1){
+		// Read 6 bytes of data from register(0x32)
+		// xAccl lsb, xAccl msb, yAccl lsb, yAccl msb, zAccl lsb, zAccl msb
+		char reg[1] = {0x32};
+		write(file, reg, 1);
+		char data[6] ={0};
+		if(read(file, data, 6) != 6)
 		{
-			xAccl -= 1024;
+			printf("Erorr : Input/output Erorr \n");
+			exit(1);
 		}
-
-		int yAccl = ((data[3] & 0x03) * 256 + (data[2] & 0xFF));
-		if(yAccl > 511)
+		else
 		{
-			yAccl -= 1024;
-		}
+			// Convert the data to 10-bits
+			int xAccl = ((data[1] & 0x03) * 256 + (data[0] & 0xFF));
+			if(xAccl > 511)
+			{
+				xAccl -= 1024;
+			}
 
-		int zAccl = ((data[5] & 0x03) * 256 + (data[4] & 0xFF));
-		if(zAccl > 511)
-		{
-			zAccl -= 1024;
-		}
+			int yAccl = ((data[3] & 0x03) * 256 + (data[2] & 0xFF));
+			if(yAccl > 511)
+			{
+				yAccl -= 1024;
+			}
 
-		// Output data to screen
-		printf("Acceleration in X-Axis : %d \n", xAccl);
-		printf("Acceleration in Y-Axis : %d \n", yAccl);
-		printf("Acceleration in Z-Axis : %d \n", zAccl);
+			int zAccl = ((data[5] & 0x03) * 256 + (data[4] & 0xFF));
+			if(zAccl > 511)
+			{
+				zAccl -= 1024;
+			}
+
+			// Output data to screen
+			printf("Acceleration in X-Axis : %d \n", xAccl);
+			printf("Acceleration in Y-Axis : %d \n", yAccl);
+			printf("Acceleration in Z-Axis : %d \n", zAccl);
+
+		}
+		sleep(1);
 	}
 }
