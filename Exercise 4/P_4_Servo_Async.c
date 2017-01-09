@@ -90,6 +90,14 @@ void setServoLow(int file, long timeInNanoSleep) {
 	wasteTime(timeInNanoSleep);
 }
 
+void dump_line( FILE * fp )
+{
+  int ch;
+
+  while( (ch = fgetc(fp)) != EOF && ch != '\n' )
+    /* null body */;
+}
+
 int main( void )
 {
 	gProfile = 1;
@@ -108,6 +116,7 @@ int main( void )
 
 		printf( "Which profile you like to use (0=Quit, 1=Automatic, 2=Manual): ");
 		scanf("%d", &profile);
+		dump_line(stdin);
 		
 		if(profile == 1) {
 			// Automatic
@@ -118,6 +127,7 @@ int main( void )
 			printf( "\nYou entered the manual profile. Enter the angle: ");
 			int angle;
 			scanf("%d", &angle);
+			dump_line(stdin);
 			gAngle = angle / 100 * 3000 - 500;
 			gProfile = profile;
 			printf( "\nThe servo will move to: %d percent angle \n", angle);
