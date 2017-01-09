@@ -10,25 +10,31 @@
 #include <fcntl.h>
 #include <stdint.h>
 
-long ROTATE_0_HIGH_NANO;
-long ROTATE_0_LOW_NANO;
-long ROTATE_90_HIGH_NANO;
-long ROTATE_90_LOW_NANO;
-long ROTATE_180_HIGH_NANO;
-long ROTATE_180_LOW_NANO;
-
 int gProfile, gMinAngle, gMaxAngle;
 
 void* function( void )
 {
+	int file = open("/sys/class/gpio/gpio44/value", O_RDWR, S_IWRITE | S_IREAD);
+	if(file == -1) {
+		printf("Error: /sys/class/gpio/gpio44/value");
+		return;
+	}
+	
+	long ROTATE_0_HIGH_NANO = 500*1000;
+	long ROTATE_0_LOW_NANO = 20*1000000-ROTATE_0_HIGH_NANO;
+	long ROTATE_90_HIGH_NANO = 1500*1000;
+	long ROTATE_90_LOW_NANO = 20*1000000-ROTATE_90_HIGH_NANO;
+	long ROTATE_180_HIGH_NANO = 2500*1000;
+	long ROTATE_180_LOW_NANO = 20*1000000-ROTATE_180_HIGH_NANO;
+	
 	int direction = 1;
 	
 	while(1) {
 		switch(gProfile) {
 			case 1:
 				// --- Linear Profile Start ---
-				setServoHigh(getRotationVoltage(direction, ROTATE_0_HIGH_NANO, ROTATE_180_HIGH_NANO));
-				setServoLow(getRotationVoltage(direction, ROTATE_0_LOW_NANO, ROTATE_180_LOW_NANO));
+				setServoHigh(file, getRotationAngle(direction, ROTATE_0_HIGH_NANO, ROTATE_180_HIGH_NANO));
+				setServoLow(file, getRotationAngle(direction, ROTATE_0_LOW_NANO, ROTATE_180_LOW_NANO));
 				// --- Linear Profile End ---
 				break;
 			case 2:
@@ -44,7 +50,7 @@ void* function( void )
 	}
 }
 
-int getRotationVoltage(int direction, int minAngle, int maxAngle) {
+int getRotationAngle(int direction, int minAngle, int maxAngle) {
 	if(direction > 0) {
 		return maxAngle;
 	} else {
@@ -68,33 +74,19 @@ void wasteTime(long duration) {
 	}
 }
 
-void setServoHigh(long timeInNano) {
-	int file = open("/sys/class/gpio/gpio44/value", O_RDWR, S_IWRITE | S_IREAD);
-	if(file != -1) {
-		// File is open
-		write(file, "1", 1);
-		wasteTime(timeInNano);
-	}
+void setServoHigh(int file, long timeInNanoSleep) {
+	write(file, "1", 1);
+	wasteTime(timeInNanoSleep);
 }
 
-void setServoLow(long timeInNano) {
-	int file = open("/sys/class/gpio/gpio44/value", O_RDWR, S_IWRITE | S_IREAD);
-	if(file != -1) {
-		// File is open
-		write(file, "0", 1);
-		wasteTime(timeInNano);
-	}
+void setServoLow(int file, long timeInNanoSleep) {
+	write(file, "0", 1);
+	wasteTime(timeInNanoSleep);
 }
 
 int main( void )
 {
 	gProfile = 1;
-	ROTATE_0_HIGH_NANO = 500*1000;
-	ROTATE_0_LOW_NANO = 20*1000000-ROTATE_0_HIGH_NANO;
-	ROTATE_90_HIGH_NANO = 1500*1000;
-	ROTATE_90_LOW_NANO = 20*1000000-ROTATE_90_HIGH_NANO;
-	ROTATE_180_HIGH_NANO = 2500*1000;
-	ROTATE_180_LOW_NANO = 20*1000000-ROTATE_180_HIGH_NANO;
 	
 	// Initialise the thread attributes
 	pthread_attr_t attr;
