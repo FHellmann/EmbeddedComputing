@@ -122,7 +122,12 @@ int main( void )
 		scanf("%d", &profile);
 		dump_line(stdin);
 		
-		if(profile == 1) {
+		if(profile == 0) {
+			// Quit
+			gProfile = profile;
+			printf( "\nQuit" );
+			return;
+		} else if(profile == 1) {
 			// Automatic
 			gProfile = profile;
 			printf( "\nYou entered the automatic profile: Linear\n");
@@ -135,11 +140,6 @@ int main( void )
 			gAngle = angle / 100 * 3000 - 500;
 			gProfile = profile;
 			printf( "\nThe servo will move to: %d percent angle \n", angle);
-		} else {
-			// Quit
-			gProfile = profile;
-			printf( "\nQuit" );
-			return;
-		}
+		} 
 	}
 }
