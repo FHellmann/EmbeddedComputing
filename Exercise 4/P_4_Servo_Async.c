@@ -10,9 +10,6 @@
 #include <fcntl.h>
 #include <stdint.h>
 
-const int PROFILE_AUTOMATIC = 1;
-const int PROFILE_MANUAL = 2;
-
 int ROTATE_0_HIGH_NANO;
 int ROTATE_0_LOW_NANO;
 int ROTATE_90_HIGH_NANO;
@@ -20,8 +17,7 @@ int ROTATE_90_LOW_NANO;
 int ROTATE_180_HIGH_NANO;
 int ROTATE_180_LOW_NANO;
 
-int gMinAngle, gMaxAngle;
-int gProfile = PROFILE_AUTOMATIC;
+int gProfile, gMinAngle, gMaxAngle;
 
 void* userCommunicationThread( void )
 {
@@ -61,24 +57,6 @@ int* getRotationVoltage(int* direction, int* minAngle, int* maxAngle) {
 	}
 }
 
-void setServoHigh(int timeInNano) {
-	int file = open("/sys/class/gpio/gpio44/value", O_RDWR, S_IWRITE | S_IREAD);
-	if(file != -1) {
-		// File is open
-		write(file, "1", 1);
-		wasteTime(timeInNano);
-	}
-}
-
-void setServoLow(int timeInNano) {
-	int file = open("/sys/class/gpio/gpio44/value", O_RDWR, S_IWRITE | S_IREAD);
-	if(file != -1) {
-		// File is open
-		write(file, "0", 1);
-		wasteTime(timeInNano);
-	}
-}
-
 void wasteTime(long duration) {
 	//Workload for the proccessor
 	//number of loops is calculated with magic values
@@ -86,11 +64,7 @@ void wasteTime(long duration) {
 	float bla = 1.58694;
 	long end = duration / 9000;
 	long loops = 0;
-	#if defined(__QNX__)
-	int innerLoop = 560;
-	#elif defined(__linux__)
 	int innerLoop=40;
-	#endif
 	for (; loops < end; loops++) {
 		int i2 = 0;
 		for (; i2 < innerLoop; i2++) {
@@ -99,8 +73,27 @@ void wasteTime(long duration) {
 	}
 }
 
+void setServoHigh(int* timeInNano) {
+	int file = open("/sys/class/gpio/gpio44/value", O_RDWR, S_IWRITE | S_IREAD);
+	if(file != -1) {
+		// File is open
+		write(file, "1", 1);
+		wasteTime(timeInNano);
+	}
+}
+
+void setServoLow(int* timeInNano) {
+	int file = open("/sys/class/gpio/gpio44/value", O_RDWR, S_IWRITE | S_IREAD);
+	if(file != -1) {
+		// File is open
+		write(file, "0", 1);
+		wasteTime(timeInNano);
+	}
+}
+
 int main( void )
 {
+	gProfile = 1;
 	ROTATE_0_HIGH_NANO = 500*1000;
 	ROTATE_0_LOW_NANO = 20*1000000-ROTATE_0_HIGH_NANO;
 	ROTATE_90_HIGH_NANO = 1500*1000;
@@ -121,13 +114,13 @@ int main( void )
 	
 	while(1) {
 		switch(gProfile) {
-			case PROFILE_AUTOMATIC:
+			case 1:
 				// --- Linear Profile Start ---
-				setServoHigh(getRotationVoltage(&direction, &ROTATE_0_HIGH_NANO, &ROTATE_180_HIGH_NANO);
-				setServoLow(getRotationVoltage(&direction, &ROTATE_0_LOW_NANO, &ROTATE_180_LOW_NANO);
+				setServoHigh(getRotationVoltage(&direction, &ROTATE_0_HIGH_NANO, &ROTATE_180_HIGH_NANO));
+				setServoLow(getRotationVoltage(&direction, &ROTATE_0_LOW_NANO, &ROTATE_180_LOW_NANO));
 				// --- Linear Profile End ---
 				break;
-			case PROFILE_MANUAL:
+			case 2:
 				// --- Manual Profile Start ---
 				
 				// --- Manual Profile End ---
