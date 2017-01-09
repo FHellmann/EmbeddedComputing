@@ -66,7 +66,7 @@ int main( void )
 			case PROFILE_AUTOMATIC:
 				// --- Linear Profile Start ---
 				setServoHigh(getRotationVoltage(&direction, &ROTATE_0_HIGH_NANO, &ROTATE_180_HIGH_NANO);
-				setServoHigh(getRotationVoltage(&direction, &ROTATE_0_LOW_NANO, &ROTATE_180_LOW_NANO);
+				setServoLow(getRotationVoltage(&direction, &ROTATE_0_LOW_NANO, &ROTATE_180_LOW_NANO);
 				// --- Linear Profile End ---
 				break;
 			case PROFILE_MANUAL:
