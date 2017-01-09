@@ -10,46 +10,41 @@
 #include <fcntl.h>
 #include <stdint.h>
 
-int ROTATE_0_HIGH_NANO;
-int ROTATE_0_LOW_NANO;
-int ROTATE_90_HIGH_NANO;
-int ROTATE_90_LOW_NANO;
-int ROTATE_180_HIGH_NANO;
-int ROTATE_180_LOW_NANO;
+long ROTATE_0_HIGH_NANO;
+long ROTATE_0_LOW_NANO;
+long ROTATE_90_HIGH_NANO;
+long ROTATE_90_LOW_NANO;
+long ROTATE_180_HIGH_NANO;
+long ROTATE_180_LOW_NANO;
 
 int gProfile, gMinAngle, gMaxAngle;
 
-void* userCommunicationThread( void )
+void* function( void )
 {
+	int direction = 1;
+	
 	while(1) {
-		int profile;
-
-		printf( "Which profile you like to use (0=Quit, 1=Automatic, 2=Manual): ");
-		scanf("%d", &profile);
-		
-		if(profile == 1) {
-			// Automatic
-			gProfile = profile;
-			printf( "\nYou entered the automatic profile: Linear\n");
-		} else if(profile == 2) {
-			// Manual
-			printf( "\nYou entered the manual profile. Enter min and max angle: ");
-			int minAngle, maxAngle;
-			scanf("%d %d", &minAngle, &maxAngle);
-			gMinAngle = minAngle;
-			gMaxAngle = maxAngle;
-			gProfile = profile;
-			printf( "\nThe servo will rotate between: min angle=%d, max angle=%d \n", minAngle, maxAngle);
-		} else {
-			// Quit
-			gProfile = profile;
-			printf( "\nQuit" );
-			return;
+		switch(gProfile) {
+			case 1:
+				// --- Linear Profile Start ---
+				setServoHigh(getRotationVoltage(direction, ROTATE_0_HIGH_NANO, ROTATE_180_HIGH_NANO));
+				setServoLow(getRotationVoltage(direction, ROTATE_0_LOW_NANO, ROTATE_180_LOW_NANO));
+				// --- Linear Profile End ---
+				break;
+			case 2:
+				// --- Manual Profile Start ---
+				
+				// --- Manual Profile End ---
+				break;
+			default:
+				return EXIT_SUCCESS;
 		}
+		
+		direction *= -1;
 	}
 }
 
-int* getRotationVoltage(int* direction, int* minAngle, int* maxAngle) {
+int getRotationVoltage(int direction, int minAngle, int maxAngle) {
 	if(direction > 0) {
 		return maxAngle;
 	} else {
@@ -73,7 +68,7 @@ void wasteTime(long duration) {
 	}
 }
 
-void setServoHigh(int* timeInNano) {
+void setServoHigh(long timeInNano) {
 	int file = open("/sys/class/gpio/gpio44/value", O_RDWR, S_IWRITE | S_IREAD);
 	if(file != -1) {
 		// File is open
@@ -82,7 +77,7 @@ void setServoHigh(int* timeInNano) {
 	}
 }
 
-void setServoLow(int* timeInNano) {
+void setServoLow(long timeInNano) {
 	int file = open("/sys/class/gpio/gpio44/value", O_RDWR, S_IWRITE | S_IREAD);
 	if(file != -1) {
 		// File is open
@@ -108,27 +103,32 @@ int main( void )
 
 	// Create thread for user input
 	pthread_t th1;
-	pthread_create( &th1, &attr, &userCommunicationThread, NULL );
-	
-	int direction = 1;
+	pthread_create( &th1, &attr, &function, NULL );
 	
 	while(1) {
-		switch(gProfile) {
-			case 1:
-				// --- Linear Profile Start ---
-				setServoHigh(getRotationVoltage(&direction, &ROTATE_0_HIGH_NANO, &ROTATE_180_HIGH_NANO));
-				setServoLow(getRotationVoltage(&direction, &ROTATE_0_LOW_NANO, &ROTATE_180_LOW_NANO));
-				// --- Linear Profile End ---
-				break;
-			case 2:
-				// --- Manual Profile Start ---
-				
-				// --- Manual Profile End ---
-				break;
-			default:
-				return EXIT_SUCCESS;
-		}
+		int profile;
+
+		printf( "Which profile you like to use (0=Quit, 1=Automatic, 2=Manual): ");
+		scanf("%d", &profile);
 		
-		direction *= -1;
+		if(profile == 1) {
+			// Automatic
+			gProfile = profile;
+			printf( "\nYou entered the automatic profile: Linear\n");
+		} else if(profile == 2) {
+			// Manual
+			printf( "\nYou entered the manual profile. Enter min and max angle: ");
+			int minAngle, maxAngle;
+			scanf("%d %d", &minAngle, &maxAngle);
+			gMinAngle = minAngle;
+			gMaxAngle = maxAngle;
+			gProfile = profile;
+			printf( "\nThe servo will rotate between: min angle=%d, max angle=%d \n", minAngle, maxAngle);
+		} else {
+			// Quit
+			gProfile = profile;
+			printf( "\nQuit" );
+			return;
+		}
 	}
 }
