@@ -36,10 +36,19 @@ void* function( void )
 	
 	while(1) {
 		switch(gProfile) {
+			case 0:
+				return EXIT_SUCCESS;
 			case 1:
 				// --- Linear Profile Start ---
 				setServoHigh(file, getRotationAngle(angle));
 				setServoLow(file, TIME_INTERVALL - getRotationAngle(angle));
+				
+				angle+=direction;
+				if(angle >= MAX_ROTATION_180) {
+					direction = -1;
+				} else if(angle <= 0) {
+					direction = 1;
+				}
 				// --- Linear Profile End ---
 				break;
 			case 2:
@@ -49,13 +58,8 @@ void* function( void )
 				// --- Manual Profile End ---
 				break;
 			default:
-				return EXIT_SUCCESS;
-		}
-		angle+=direction;
-		if(angle >= MAX_ROTATION_180) {
-			direction = -1;
-		} else if(angle <= 0) {
-			direction = 1;
+				wasteTime(200);
+				break;
 		}
 	}
 }
@@ -100,7 +104,7 @@ void dump_line( FILE * fp )
 
 int main( void )
 {
-	gProfile = 1;
+	gProfile = 3;
 	
 	// Initialise the thread attributes
 	pthread_attr_t attr;
