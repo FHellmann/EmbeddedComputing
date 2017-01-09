@@ -44,7 +44,8 @@ void* function( void )
 				break;
 			case 2:
 				// --- Manual Profile Start ---
-				
+				setServoHigh(file, getRotationAngle(gAngle));
+				setServoLow(file, TIME_INTERVALL - getRotationAngle(gAngle));
 				// --- Manual Profile End ---
 				break;
 			default:
@@ -117,7 +118,7 @@ int main( void )
 			printf( "\nYou entered the manual profile. Enter the angle: ");
 			int angle;
 			scanf("%d", &angle);
-			gAngle = angle;
+			gAngle = angle / 100 * 3000 - 500;
 			gProfile = profile;
 			printf( "\nThe servo will move to: %d percent angle \n", angle);
 		} else {
