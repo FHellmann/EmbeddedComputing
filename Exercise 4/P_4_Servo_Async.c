@@ -10,7 +10,7 @@
 #include <fcntl.h>
 #include <stdint.h>
 
-int gProfile, gMinAngle, gMaxAngle;
+int gProfile, gAngle;
 
 void* function( void )
 {
@@ -27,14 +27,19 @@ void* function( void )
 	long ROTATE_180_HIGH_NANO = 2500*1000;
 	long ROTATE_180_LOW_NANO = 20*1000000-ROTATE_180_HIGH_NANO;
 	
+	long MIN_ROTATION_0 = 500;
+	long MAX_ROTATION_180 = 2500;
+	long TIME_INTERVALL = 20*1000000;
+	
 	int direction = 1;
+	long angle = MIN_ROTATION_0;
 	
 	while(1) {
 		switch(gProfile) {
 			case 1:
 				// --- Linear Profile Start ---
-				setServoHigh(file, getRotationAngle(direction, ROTATE_0_HIGH_NANO, ROTATE_180_HIGH_NANO));
-				setServoLow(file, getRotationAngle(direction, ROTATE_0_LOW_NANO, ROTATE_180_LOW_NANO));
+				setServoHigh(file, getRotationAngle(angle));
+				setServoLow(file, TIME_INTERVALL - getRotationAngle(angle));
 				// --- Linear Profile End ---
 				break;
 			case 2:
@@ -45,17 +50,17 @@ void* function( void )
 			default:
 				return EXIT_SUCCESS;
 		}
-		
-		direction *= -1;
+		angle+=direction;
+		if(angle >= MAX_ROTATION_180) {
+			direction = -1;
+		} else if(angle <= 0) {
+			direction = 1;
+		}
 	}
 }
 
-int getRotationAngle(int direction, int minAngle, int maxAngle) {
-	if(direction > 0) {
-		return maxAngle;
-	} else {
-		return minAngle;
-	}
+int getRotationAngle(int angle) {
+	return angle*1000;
 }
 
 void wasteTime(long duration) {
@@ -109,13 +114,12 @@ int main( void )
 			printf( "\nYou entered the automatic profile: Linear\n");
 		} else if(profile == 2) {
 			// Manual
-			printf( "\nYou entered the manual profile. Enter min and max angle: ");
-			int minAngle, maxAngle;
-			scanf("%d %d", &minAngle, &maxAngle);
-			gMinAngle = minAngle;
-			gMaxAngle = maxAngle;
+			printf( "\nYou entered the manual profile. Enter the angle: ");
+			int angle;
+			scanf("%d", &angle);
+			gAngle = angle;
 			gProfile = profile;
-			printf( "\nThe servo will rotate between: min angle=%d, max angle=%d \n", minAngle, maxAngle);
+			printf( "\nThe servo will move to: %d percent angle \n", angle);
 		} else {
 			// Quit
 			gProfile = profile;
