@@ -5,18 +5,23 @@
 #include <string.h>
 #include <getopt.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdint.h>
 
 const int PROFILE_AUTOMATIC = 1;
 const int PROFILE_MANUAL = 2;
 
-const int ROTATE_0_HIGH_NANO = 500*1000;
-const int ROTATE_0_LOW_NANO = 20*1000000-ROTATE_0_HIGH_NANO;
-const int ROTATE_90_HIGH_NANO = 1500*1000;
-const int ROTATE_90_LOW_NANO = 20*1000000-ROTATE_90_HIGH_NANO;
-const int ROTATE_180_HIGH_NANO = 2500*1000;
-const int ROTATE_180_LOW_NANO = 20*1000000-ROTATE_180_HIGH_NANO;
+int ROTATE_0_HIGH_NANO;
+int ROTATE_0_LOW_NANO;
+int ROTATE_90_HIGH_NANO;
+int ROTATE_90_LOW_NANO;
+int ROTATE_180_HIGH_NANO;
+int ROTATE_180_LOW_NANO;
 
-int gProfile = PROFILE_AUTOMATIC, gMinAngle, gMaxAngle;
+int gMinAngle, gMaxAngle;
+int gProfile = PROFILE_AUTOMATIC;
 
 void* userCommunicationThread( void )
 {
@@ -32,7 +37,7 @@ void* userCommunicationThread( void )
 			printf( "\nYou entered the automatic profile: Linear\n");
 		} else if(profile == 2) {
 			// Manual
-			printf( "\nYou entered the manual profile. Enter min and max angle: ", str, i);
+			printf( "\nYou entered the manual profile. Enter min and max angle: ");
 			int minAngle, maxAngle;
 			scanf("%d %d", &minAngle, &maxAngle);
 			gMinAngle = minAngle;
@@ -48,41 +53,7 @@ void* userCommunicationThread( void )
 	}
 }
 
-int main( void )
-{
-	// Initialise the thread attributes
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
-	pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_JOINABLE );
-
-	// Create thread for user input
-	pthread_t th1;
-	pthread_create( &th1, &attr, &userCommunicationThread, NULL );
-	
-	int direction = 1;
-	
-	while(1) {
-		switch(gProfile) {
-			case PROFILE_AUTOMATIC:
-				// --- Linear Profile Start ---
-				setServoHigh(getRotationVoltage(&direction, &ROTATE_0_HIGH_NANO, &ROTATE_180_HIGH_NANO);
-				setServoLow(getRotationVoltage(&direction, &ROTATE_0_LOW_NANO, &ROTATE_180_LOW_NANO);
-				// --- Linear Profile End ---
-				break;
-			case PROFILE_MANUAL:
-				// --- Manual Profile Start ---
-				
-				// --- Manual Profile End ---
-				break;
-			default:
-				return EXIT_SUCCESS;
-		}
-		
-		direction *= -1;
-	}
-}
-
-int getRotationVoltage(int* direction, int* minAngle, int* maxAngle) {
+int* getRotationVoltage(int* direction, int* minAngle, int* maxAngle) {
 	if(direction > 0) {
 		return maxAngle;
 	} else {
@@ -125,5 +96,46 @@ void wasteTime(long duration) {
 		for (; i2 < innerLoop; i2++) {
 			bla *= i2;
 		}
+	}
+}
+
+int main( void )
+{
+	ROTATE_0_HIGH_NANO = 500*1000;
+	ROTATE_0_LOW_NANO = 20*1000000-ROTATE_0_HIGH_NANO;
+	ROTATE_90_HIGH_NANO = 1500*1000;
+	ROTATE_90_LOW_NANO = 20*1000000-ROTATE_90_HIGH_NANO;
+	ROTATE_180_HIGH_NANO = 2500*1000;
+	ROTATE_180_LOW_NANO = 20*1000000-ROTATE_180_HIGH_NANO;
+	
+	// Initialise the thread attributes
+	pthread_attr_t attr;
+	pthread_attr_init( &attr );
+	pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_JOINABLE );
+
+	// Create thread for user input
+	pthread_t th1;
+	pthread_create( &th1, &attr, &userCommunicationThread, NULL );
+	
+	int direction = 1;
+	
+	while(1) {
+		switch(gProfile) {
+			case PROFILE_AUTOMATIC:
+				// --- Linear Profile Start ---
+				setServoHigh(getRotationVoltage(&direction, &ROTATE_0_HIGH_NANO, &ROTATE_180_HIGH_NANO);
+				setServoLow(getRotationVoltage(&direction, &ROTATE_0_LOW_NANO, &ROTATE_180_LOW_NANO);
+				// --- Linear Profile End ---
+				break;
+			case PROFILE_MANUAL:
+				// --- Manual Profile Start ---
+				
+				// --- Manual Profile End ---
+				break;
+			default:
+				return EXIT_SUCCESS;
+		}
+		
+		direction *= -1;
 	}
 }
