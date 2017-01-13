@@ -10,6 +10,12 @@
 #include <fcntl.h>
 #include <stdint.h>
 
+char HIGH = '1';
+char LOW = '0';
+
+long MIN_ROTATION_0 = 500;
+long MAX_ROTATION_180 = 2500;
+
 int gProfile, gAngle;
 
 void* function( void )
@@ -20,14 +26,7 @@ void* function( void )
 		return;
 	}
 	
-	char HIGH = '1';
-	char LOW = '0';
-	
-	long MIN_ROTATION_0 = 500;
-	long MAX_ROTATION_180 = 2500;
-	int movementAngle = (MAX_ROTATION_180 - MIN_ROTATION_0) / 100;
-	
-	int direction = movementAngle;
+	int direction = (MAX_ROTATION_180 - MIN_ROTATION_0) / 100;
 	long angle = MIN_ROTATION_0;
 	
 	while(1) {
@@ -107,7 +106,7 @@ int main( void )
 	while(1) {
 		int profile;
 
-		printf( "Which profile you like to use (0=Quit, 1=Automatic, 2=Manual): ");
+		printf( "Choose the profile (0=Quit, 1=Automatic, 2=Manual): ");
 		scanf("%d", &profile);
 		dump_line(stdin);
 		
@@ -119,14 +118,14 @@ int main( void )
 		} else if(profile == 1) {
 			// Automatic
 			gProfile = profile;
-			printf( "\nYou entered the automatic profile: Linear\n");
+			printf( "\nAutomatic profile: Linear\n");
 		} else if(profile == 2) {
 			// Manual
-			printf( "\nYou entered the manual profile. Enter the angle: ");
+			printf( "\nManual profile. Enter the angle: ");
 			int angle;
 			scanf("%d", &angle);
 			dump_line(stdin);
-			gAngle = angle / 100 * 3000 - 500;
+			gAngle = (angle * 3000) / 100 - 500;
 			gProfile = profile;
 			printf( "\nThe servo will move to: %d percent angle \n", angle);
 		} 
