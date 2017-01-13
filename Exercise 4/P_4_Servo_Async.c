@@ -91,7 +91,7 @@ int main( void )
 	pthread_attr_init( &attr );
 	pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_JOINABLE );
 
-	// Create thread for user input
+	// Create thread to perform servo commands
 	pthread_t th1;
 	pthread_create( &th1, &attr, &function, NULL );
 	
@@ -113,13 +113,13 @@ int main( void )
 			printf( "\nAutomatic profile: Linear\n");
 		} else if(profile == 2) {
 			// Manual
-			printf( "\nManual profile. Enter the angle: ");
-			int angle;
-			scanf("%d", &angle);
+			printf( "\nManual profile. Enter the percent to move: ");
+			int percent;
+			scanf("%d", &percent);
 			dump_line(stdin);
-			gAngle = (angle * 2000) / 100 + 500;
+			gAngle = (percent * 2000) / 100 + 500;
 			gProfile = profile;
-			printf( "\nThe servo moves to %d percent.\n", angle);
+			printf( "\nThe servo moves to %d percent.\n", percent);
 		} 
 	}
 }
