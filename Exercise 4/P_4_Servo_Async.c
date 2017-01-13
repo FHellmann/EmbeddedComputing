@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <time.h>
 
 char HIGH = '1';
 char LOW = '0';
@@ -58,20 +59,28 @@ void wasteTime(long duration) {
 	//Workload for the proccessor
 	//number of loops is calculated with magic values
 	//9000(outer Loop) and 560(inner Loop)
+	/*
 	float bla = 1.58694;
 	long end = duration / 9000;
 	long loops = 0;
-	int innerLoop=40;
+	//int innerLoop=40;
+	int innerLoop=560;
 	for (; loops < end; loops++) {
 		int i2 = 0;
 		for (; i2 < innerLoop; i2++) {
 			bla *= i2;
 		}
 	}
+	*/
+
+	struct timespec tim;
+	tim.tv_sec = 0;
+	tim.tv_nsec = duration;
+	nanosleep(&tim , (struct timespec *)NULL);
 }
 
 void rotateServo(int file, long angleInTime) {
-	long TIME_INTERVALL = 20*1000;
+	long TIME_INTERVALL = 20*1000; // 20ms = high + low
 	// Set HIGH value
 	while(write(file, "1", 1) != 1);
 	// Wait specified time
@@ -127,7 +136,7 @@ int main( void )
 			dump_line(stdin);
 			gAngle = (angle * 2000) / 100 + 500;
 			gProfile = profile;
-			printf( "\nThe servo will move to %d \%.\n", angle);
+			printf( "\nThe servo will move to %d percent.\n", angle);
 		} 
 	}
 }
