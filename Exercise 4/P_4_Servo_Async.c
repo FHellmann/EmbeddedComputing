@@ -125,9 +125,9 @@ int main( void )
 			int angle;
 			scanf("%d", &angle);
 			dump_line(stdin);
-			gAngle = (angle * 3000) / 100 - 500;
+			gAngle = (angle * 2000) / 100 + 500;
 			gProfile = profile;
-			printf( "\nThe servo will move to: %d percent angle \n", angle);
+			printf( "\nThe servo will move to %d \%.\n", angle);
 		} 
 	}
 }
