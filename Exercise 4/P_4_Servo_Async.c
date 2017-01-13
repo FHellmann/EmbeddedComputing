@@ -49,30 +49,13 @@ void* function( void )
 				rotateServo(file, gAngle);
 				break;
 			default:
-				wasteTime(200);
+				sleep(200);
 				break;
 		}
 	}
 }
 
-void wasteTime(long duration) {
-	//Workload for the proccessor
-	//number of loops is calculated with magic values
-	//9000(outer Loop) and 560(inner Loop)
-	/*
-	float bla = 1.58694;
-	long end = duration / 9000;
-	long loops = 0;
-	//int innerLoop=40;
-	int innerLoop=560;
-	for (; loops < end; loops++) {
-		int i2 = 0;
-		for (; i2 < innerLoop; i2++) {
-			bla *= i2;
-		}
-	}
-	*/
-
+void sleep(long duration) {
 	struct timespec tim;
 	tim.tv_sec = 0;
 	tim.tv_nsec = duration;
@@ -84,11 +67,11 @@ void rotateServo(int file, long angleInTime) {
 	// Set HIGH value
 	while(write(file, "1", 1) != 1);
 	// Wait specified time
-	wasteTime(angleInTime*1000);
+	sleep(angleInTime*1000);
 	// Set LOW value
 	while(write(file, "0", 1) != 1);
 	// Wait specified time
-	wasteTime((TIME_INTERVALL-angleInTime)*1000);
+	sleep((TIME_INTERVALL-angleInTime)*1000);
 }
 
 void dump_line( FILE * fp )
@@ -136,7 +119,7 @@ int main( void )
 			dump_line(stdin);
 			gAngle = (angle * 2000) / 100 + 500;
 			gProfile = profile;
-			printf( "\nThe servo will move to %d percent.\n", angle);
+			printf( "\nThe servo moves to %d percent.\n", angle);
 		} 
 	}
 }
