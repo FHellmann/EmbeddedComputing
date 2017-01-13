@@ -89,7 +89,7 @@ void wasteTime(long duration) {
 }
 
 void setServo(int file, char state, long timeInNanoSleep) {
-	while(write(file, state, 1) > -1);
+	while(write(file, state, 1) < 0);
 	wasteTime(timeInNanoSleep);
 }
 
