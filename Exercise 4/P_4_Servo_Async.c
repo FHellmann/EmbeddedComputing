@@ -20,19 +20,11 @@ void* function( void )
 		return;
 	}
 	
-	long ROTATE_0_HIGH_NANO = 500*1000;
-	long ROTATE_0_LOW_NANO = 20*1000000-ROTATE_0_HIGH_NANO;
-	long ROTATE_90_HIGH_NANO = 1500*1000;
-	long ROTATE_90_LOW_NANO = 20*1000000-ROTATE_90_HIGH_NANO;
-	long ROTATE_180_HIGH_NANO = 2500*1000;
-	long ROTATE_180_LOW_NANO = 20*1000000-ROTATE_180_HIGH_NANO;
-	
 	char HIGH = '1';
 	char LOW = '0';
 	
 	long MIN_ROTATION_0 = 500;
 	long MAX_ROTATION_180 = 2500;
-	long TIME_INTERVALL = 20*1000000;
 	int movementAngle = (MAX_ROTATION_180 - MIN_ROTATION_0) / 100;
 	
 	int direction = movementAngle;
@@ -41,35 +33,26 @@ void* function( void )
 	while(1) {
 		switch(gProfile) {
 			case 0:
+				close(file);
 				return EXIT_SUCCESS;
 			case 1:
-				// --- Linear Profile Start ---
-				setServo(file, HIGH, getRotationAngle(angle));
-				setServo(file, LOW, TIME_INTERVALL - getRotationAngle(angle));
+				// --- Automatic Profile: Linear ---
+				rotateServo(file, angle);
 				
-				angle+=direction;
-				if(angle >= MAX_ROTATION_180) {
-					direction = -movementAngle;
-				} else if(angle <= 0) {
-					direction = movementAngle;
+				if(angle >= MAX_ROTATION_180 || angle <= 0) {
+					direction *= -1;
 				}
-				// --- Linear Profile End ---
+				angle+=direction;
 				break;
 			case 2:
-				// --- Manual Profile Start ---
-				setServo(file, HIGH, getRotationAngle(gAngle));
-				setServo(file, LOW, TIME_INTERVALL - getRotationAngle(gAngle));
-				// --- Manual Profile End ---
+				// --- Manual Profile ---
+				rotateServo(file, gAngle);
 				break;
 			default:
 				wasteTime(200);
 				break;
 		}
 	}
-}
-
-int getRotationAngle(int angle) {
-	return angle*1000;
 }
 
 void wasteTime(long duration) {
@@ -88,9 +71,16 @@ void wasteTime(long duration) {
 	}
 }
 
-void setServo(int file, char state, long timeInNanoSleep) {
-	while(write(file, state, 1) < 0);
-	wasteTime(timeInNanoSleep);
+void rotateServo(int file, long angleInTime) {
+	long TIME_INTERVALL = 20*1000;
+	// Set HIGH value
+	while(write(file, "1", 1) != 1);
+	// Wait specified time
+	wasteTime(angleInTime*1000);
+	// Set LOW value
+	while(write(file, "0", 1) != 1);
+	// Wait specified time
+	wasteTime((TIME_INTERVALL-angleInTime)*1000);
 }
 
 void dump_line( FILE * fp )
