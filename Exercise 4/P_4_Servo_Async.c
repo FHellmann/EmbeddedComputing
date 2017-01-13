@@ -27,11 +27,15 @@ void* function( void )
 	long ROTATE_180_HIGH_NANO = 2500*1000;
 	long ROTATE_180_LOW_NANO = 20*1000000-ROTATE_180_HIGH_NANO;
 	
+	char HIGH = '1';
+	char LOW = '0';
+	
 	long MIN_ROTATION_0 = 500;
 	long MAX_ROTATION_180 = 2500;
 	long TIME_INTERVALL = 20*1000000;
+	int movementAngle = (MAX_ROTATION_180 - MIN_ROTATION_0) / 100;
 	
-	int direction = 1;
+	int direction = movementAngle;
 	long angle = MIN_ROTATION_0;
 	
 	while(1) {
@@ -40,21 +44,21 @@ void* function( void )
 				return EXIT_SUCCESS;
 			case 1:
 				// --- Linear Profile Start ---
-				setServoHigh(file, getRotationAngle(angle));
-				setServoLow(file, TIME_INTERVALL - getRotationAngle(angle));
+				setServo(file, HIGH, getRotationAngle(angle));
+				setServo(file, LOW, TIME_INTERVALL - getRotationAngle(angle));
 				
 				angle+=direction;
 				if(angle >= MAX_ROTATION_180) {
-					direction = -1;
+					direction = -movementAngle;
 				} else if(angle <= 0) {
-					direction = 1;
+					direction = movementAngle;
 				}
 				// --- Linear Profile End ---
 				break;
 			case 2:
 				// --- Manual Profile Start ---
-				setServoHigh(file, getRotationAngle(gAngle));
-				setServoLow(file, TIME_INTERVALL - getRotationAngle(gAngle));
+				setServo(file, HIGH, getRotationAngle(gAngle));
+				setServo(file, LOW, TIME_INTERVALL - getRotationAngle(gAngle));
 				// --- Manual Profile End ---
 				break;
 			default:
@@ -84,13 +88,8 @@ void wasteTime(long duration) {
 	}
 }
 
-void setServoHigh(int file, long timeInNanoSleep) {
-	write(file, "1", 1);
-	wasteTime(timeInNanoSleep);
-}
-
-void setServoLow(int file, long timeInNanoSleep) {
-	write(file, "0", 1);
+void setServo(int file, char state, long timeInNanoSleep) {
+	while(write(file, state, 1) > -1);
 	wasteTime(timeInNanoSleep);
 }
 
